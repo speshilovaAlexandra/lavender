@@ -68,25 +68,21 @@
 import { ref, onMounted } from 'vue';
 import api from '@/api';
 import { useAuthStore } from '@/stores/auth';
+import { API_CONFIG } from '@/config/api'; // Импортируем конфиг
 
 const flowers = ref([]);
 const loading = ref(true);
 const error = ref(null);
+const API_URL = API_CONFIG.baseURL; // ✅ Добавляем API_URL как в примере
 const authStore = useAuthStore();
 
-// Берем URL из конфига axios, чтобы не хардкодить
-const getBaseUrl = () => api.defaults.baseURL.replace('/api', ''); 
-
+// Функция для получения полного URL изображения
 const getImageUrl = (imgPath) => {
-  // if (!imgPath) return '/images/placeholder.jpg';
+  if (!imgPath) return '/images/placeholder.jpg';
   if (imgPath.startsWith('http')) return imgPath;
   const clean = imgPath.replace(/^\//, '');
-  return `${getBaseUrl()}/storage/${clean}`;
+  return `${API_URL.replace('/api', '')}/storage/${clean}`;
 };
-
-// const onImageError = (e) => {
-//   e.target.src = '/images/placeholder.jpg';
-// };
 
 const formatPrice = (price) => {
   return new Intl.NumberFormat('ru-RU').format(price) + ' ₽';
@@ -108,21 +104,42 @@ const addToCart = (flower) => {
   alert('Добавлено в корзину!');
 };
 
-onMounted(async () => {
+// Загрузка товаров - как в вашем примере на скриншине
+const loadFlowers = async () => {
+  loading.value = true;
+  error.value = null;
+  
   try {
-    const url = `${this.API_URL}/flowers`
-    const res = await fetch(url, { headers: {'Accept': 'application/json'}
-                                 })
-    // const res = await api.get('/flowers');
-    // flowers.value = Array.isArray(res.data) ? res.data : [];
+    // Вариант 1: Через fetch (как на скриншоте)
+    const url = `${API_URL}/flowers`;
+    const res = await fetch(url, {
+      headers: { 
+        'Accept': 'application/json',
+        'Authorization': localStorage.getItem('token') ? `Bearer ${localStorage.getItem('token')}` : ''
+      }
+    });
+    
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+    
+    const data = await res.json();
+    flowers.value = Array.isArray(data) ? data : [];
+    
+    // Вариант 2: Через axios (рекомендуется, уже используется у вас)
+    // const response = await api.get('/flowers');
+    // flowers.value = Array.isArray(response.data) ? response.data : [];
+    
   } catch (e) {
     error.value = 'Не удалось загрузить товары';
     console.error(e);
   } finally {
     loading.value = false;
   }
-</script>
+};
 
+onMounted(loadFlowers);
+</script>
 <style scoped>
 /* Variables */
 :root {
