@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://lavender.speshiqa.beget.tech/api',
+  baseURL: 'http://lavender.speshiqa.beget.tech/api',
   headers: {
     'Content-Type': 'application/json',
     // 'Accept': 'application/json',
