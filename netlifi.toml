@@ -4,13 +4,13 @@
 
 [[redirects]]
   from = "/api/*"
-  to = "http://lavender-roan.vercel.app//api/:splat"
+  to = "http://lavender-roan.vercel.app/api/:splat"
   status = 200
   force = true
 
 [[redirects]]
   from = "/images/*"
-  to = "http://lavender-roan.vercel.app//images/:splat"
+  to = "http://lavender-roan.vercel.app/images/:splat"
   status = 200
   force = true
 
