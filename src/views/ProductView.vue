@@ -79,78 +79,62 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import api from '@/api'
+import { ref, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import api from '@/api';
+import { API_CONFIG } from '@/config/api';
 
-export default {
-  setup() {
-    const route = useRoute()
-    const router = useRouter()
-    const flower = ref(null)
-    const qty = ref(1)
-    const loading = ref(true)
-    const error = ref(null)
+const route = useRoute();
+const router = useRouter();
+const flower = ref(null);
+const qty = ref(1);
+const loading = ref(true);
+const error = ref(null);
+const API_URL = API_CONFIG.baseURL; // ✅ API_URL доступен в компоненте
 
-    const isAuthenticated = () => {
-      return !!localStorage.getItem('token')
-    }
+const isAuthenticated = () => {
+  return !!localStorage.getItem('token');
+};
 
-    const getBaseUrl = () => api.defaults.baseURL.replace('/api', '');
+const getImageUrl = (imgPath) => {
+  if (!imgPath) return '/images/placeholder.jpg';
+  if (imgPath.startsWith('http')) return imgPath;
+  const clean = imgPath.replace(/^\//, '');
+  return `${API_URL.replace('/api', '')}/storage/${clean}`;
+};
 
-    const getImageUrl = (imgPath) => {
-      if (!imgPath) return '/images/placeholder.jpg'
-      if (imgPath.startsWith('http')) return imgPath
-      const clean = imgPath.replace(/^\//, '')
-      return `${getBaseUrl()}/storage/${clean}`
-    }
+const formatPrice = (price) => {
+  return new Intl.NumberFormat('ru-RU').format(price) + ' ₽';
+};
 
-    const onImageError = (e) => {
-      e.target.src = 'https://via.placeholder.com/600x600?text=No+Image';
-    }
+const loadProduct = async () => {
+  loading.value = true;
+  try {
+    // Через fetch (как на скриншоте)
+    const url = `${API_URL}/flowers/${route.params.id}`;
+    const res = await fetch(url, {
+      headers: { 'Accept': 'application/json' }
+    });
+    
+    if (!res.ok) throw new Error('Товар не найден');
+    
+    const data = await res.json();
+    flower.value = data;
+    
+    // Или через axios (лучше):
+    // const response = await api.get(`/flowers/${route.params.id}`);
+    // flower.value = response.data;
+    
+  } catch (e) {
+    error.value = 'Товар не найден или был удален.';
+    console.error(e);
+  } finally {
+    loading.value = false;
+  }
+};
 
-    const formatPrice = (price) => {
-      return new Intl.NumberFormat('ru-RU').format(price) + ' ₽'
-    }
-
-    const incrementQty = () => qty.value++
-    const decrementQty = () => { if (qty.value > 1) qty.value-- }
-
-    const addToCart = () => {
-      if (!isAuthenticated()) {
-        router.push('/login')
-        return
-      }
-
-      if (!flower.value) return
-      
-      let cart = JSON.parse(localStorage.getItem('cart') || '[]')
-      const existingItem = cart.find(i => i.id === flower.value.id)
-      
-      if (existingItem) {
-        existingItem.qty += qty.value
-      } else {
-        cart.push({ ...flower.value, qty: qty.value })
-      }
-      
-      localStorage.setItem('cart', JSON.stringify(cart))
-      
-      // В реальном проекте лучше использовать Toast уведомления
-      alert(`Товар "${flower.value.nazvanie}" добавлен в корзину (${qty.value} шт.)`)
-    }
-
-    onMounted(async () => {
-      try {
-        const res = await api.get(`/flowers/${route.params.id}`)
-        flower.value = res.data
-      } catch (e) {
-        error.value = 'Товар не найден или был удален.'
-        console.error(e)
-      } finally {
-        loading.value = false
-      }
-    })
-
+onMounted(loadProduct);
+  
     return {
       flower,
       qty,
