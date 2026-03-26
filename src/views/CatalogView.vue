@@ -68,7 +68,7 @@
 import { ref, onMounted } from 'vue';
 import api from '@/api';
 import { useAuthStore } from '@/stores/auth';
-import { API_CONFIG } from '@/config/api'; // Импортируем конфиг
+import { API_CONFIG } from '@/api/index'; // Импортируем конфиг
 
 const flowers = ref([]);
 const loading = ref(true);
