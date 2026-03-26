@@ -1,10 +1,10 @@
 import axios from 'axios';
 
+// ✅ ИСПОЛЬЗУЕМ ПЕРЕМЕННУЮ ОКРУЖЕНИЯ
 const api = axios.create({
-  baseURL: 'http://lavender.speshiqa.beget.tech/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://lavender.speshiqa.beget.tech/api',
   headers: {
     'Content-Type': 'application/json',
-    // 'Accept': 'application/json',
   },
 });
 
@@ -31,4 +31,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api;  // ✅ Здесь эта строка ПРАВИЛЬНАЯ
+export default api;
