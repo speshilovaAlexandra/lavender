@@ -82,7 +82,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api from '@/api';
-import { API_CONFIG } from '@/config/api';
+import { API_CONFIG } from '@/api/index';
 
 const route = useRoute();
 const router = useRouter();
