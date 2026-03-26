@@ -110,15 +110,17 @@ const addToCart = (flower) => {
 
 onMounted(async () => {
   try {
-    const res = await api.get('/flowers');
-    flowers.value = Array.isArray(res.data) ? res.data : [];
+    const url = `${this.API_URL}/flowers`
+    const res = await fetch(url, { headers: {'Accept': 'application/json'}
+                                 })
+    // const res = await api.get('/flowers');
+    // flowers.value = Array.isArray(res.data) ? res.data : [];
   } catch (e) {
     error.value = 'Не удалось загрузить товары';
     console.error(e);
   } finally {
     loading.value = false;
   }
-});
 </script>
 
 <style scoped>
